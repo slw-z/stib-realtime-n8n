@@ -35,6 +35,48 @@ Lightweight automation platform built to ingest, parse, and store STIB waiting t
 
 ---
 
+## 📸 Workflow Screenshots
+
+### Complete Workflow Overview
+<div align="center">
+  <img src="screenshots/01-workflow-overview.png" alt="Workflow Overview" width="800"/>
+  <p><em>n8n workflow with 4 nodes: Trigger → HTTP API → JavaScript Parser → SQL Insert</em></p>
+</div>
+
+---
+
+### HTTP Request - STIB API Integration
+<div align="center">
+  <img src="screenshots/02-http-request.png" alt="HTTP Request Configuration" width="800"/>
+  <p><em>Real-time API call to STIB vehicle positions (73 records fetched)</em></p>
+</div>
+
+---
+
+### JavaScript Code - Complex JSON Parsing
+<div align="center">
+  <img src="screenshots/03-javascript-parser.png" alt="JavaScript Parser" width="800"/>
+  <p><em>Custom parser flattening nested vehiclepositions array (215 records output)</em></p>
+</div>
+
+---
+
+### Microsoft SQL - Database Insert
+<div align="center">
+  <img src="screenshots/04-sql-insert.png" alt="SQL Insert Configuration" width="800"/>
+  <p><em>Batch insert into staging table with 5 columns mapped</em></p>
+</div>
+
+---
+
+### Execution Success - Production Ready
+<div align="center">
+  <img src="screenshots/05-execution-success.png" alt="Successful Execution" width="800"/>
+  <p><em>Workflow completed successfully - 215 vehicle positions stored in SQL database</em></p>
+</div>
+```
+
+
 ## 🏗️ Architecture
 
 ```
