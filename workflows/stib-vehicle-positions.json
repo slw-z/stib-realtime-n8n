@@ -1,0 +1,71 @@
+{
+  "name": "STIB Vehicle Positions Real-Time",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "seconds",
+              "secondsInterval": 30
+            }
+          ]
+        }
+      },
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://data.stib-mivb.brussels/api/explore/v2.1/catalog/datasets/vehicle-position-rt-production/records",
+        "options": {
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "limit",
+                "value": "100"
+              }
+            ]
+          }
+        }
+      },
+      "name": "HTTP Request - STIB API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Complex JSON Parsing for STIB Vehicle Positions\nconst items = $input.all();\nlet output = [];\n\nfor (const item of items) {\n    const rawData = item.json;\n    const results = rawData.results || (Array.isArray(rawData) ? rawData : [rawData]);\n    \n    results.forEach(res => {\n        let positionsRaw = res.vehiclepositions;\n        let positions = [];\n        \n        try {\n            positions = (typeof positionsRaw === 'string') \n                ? JSON.parse(positionsRaw) \n                : (positionsRaw || []);\n        } catch (e) {\n            positions = [];\n        }\n        \n        if (Array.isArray(positions)) {\n            positions.forEach(pos => {\n                output.push({\n                    json: {\n                        lineid: res.lineid || \"N/A\",\n                        direction: pos.directionId || null,\n                        distance_from_point: pos.distanceFromPoint || null,\n                        pointid: pos.pointId || \"N/A\",\n                        insertion_timestamp: new Date().toISOString()\n                    }\n                });\n            });\n        }\n    });\n}\n\nreturn output.length > 0 ? output : [{ json: { message: \"No data\", debug: items[0].json } }];"
+      },
+      "name": "JavaScript Parser",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "table": "STG_STIB_Vehicle_Positions",
+        "columns": "lineid, direction, distance_from_point, pointid, insertion_timestamp"
+      },
+      "name": "Microsoft SQL",
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1,
+      "position": [850, 300]
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [[{ "node": "HTTP Request - STIB API", "type": "main", "index": 0 }]]
+    },
+    "HTTP Request - STIB API": {
+      "main": [[{ "node": "JavaScript Parser", "type": "main", "index": 0 }]]
+    },
+    "JavaScript Parser": {
+      "main": [[{ "node": "Microsoft SQL", "type": "main", "index": 0 }]]
+    }
+  }
+}
