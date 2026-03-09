@@ -61,45 +61,7 @@ if (require.main === module) {
     
     console.log("Parsed output:", parseSTIBVehiclePositions(sampleData));
 }
-```
 
----
-
-## 📝 COMMENT AJOUTER CES FICHIERS SUR GITHUB (10 min)
-
-### **Méthode Simple (via interface web) :**
-
-**1. Va sur ton repo `bruxelloise-mobilité-quantique`**
-
-**2. Crée le dossier `python/` avec le fichier :**
-- "Add file" → "Create new file"
-- Nom : `python/grover_circuit.py`
-- Copie-colle le code Python ci-dessus
-- Commit : `Add Grover quantum circuit implementation`
-
-**3. Crée le dossier `sql/` avec le fichier :**
-- "Add file" → "Create new file"
-- Nom : `sql/create_tables.sql`
-- Copie-colle le code SQL ci-dessus
-- Commit : `Add SQL schema for data warehouse`
-
-**4. Répète pour `stib-tempsréel-n8n` :**
-- Crée `workflows/stib-vehicle-positions.json`
-- Crée `javascript/json-parser.js`
-
-**5. Attends 5 minutes, refresh ton profil**
-- GitHub va analyser les fichiers
-- Les icônes vont apparaître ! 🎉
-
----
-
-## 🎨 RÉSULTAT ATTENDU
-
-**Après ajout des fichiers :**
-```
-bruxelloise-mobilité-quantique
-🐍 Python (icône bleue)
-⭐ 1
 
 stib-tempsréel-n8n
 🟡 JavaScript (icône jaune)
