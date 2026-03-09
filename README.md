@@ -261,6 +261,71 @@ GROUP BY
     CAST(insertion_timestamp AS DATE)
 ```
 
+### **From Raw Data to Business Insights - SQL Analytics Layer**
+
+Once data is ingested via n8n and stored in the staging table, T-SQL views transform raw vehicle positions into actionable business intelligence.
+
+#### View 5: Real-Time Waiting Time Calculation
+<div align="center">
+  <img src="screenshots/06-sql-superposition.png" alt="SQL Waiting Time Analysis" width="700"/>
+  <p><em><strong>Production View: VW_STIB_Waiting_Time_Clean</strong><br>
+  <strong>Business Question:</strong> "How long until the next bus arrives at each stop?"<br><br>
+  <strong>Technical Implementation:</strong><br>
+  • <code>DATEDIFF(MINUTE, GETDATE(), Expected_Arrival)</code> - Calculates real-time waiting minutes from NOW to expected bus arrival<br>
+  • <code>DATEDIFF(SECOND, Insertion_Date, GETDATE())</code> - Data freshness indicator showing how recent the information is (age in seconds)<br>
+  • <code>ORDER BY Line_ID, Waiting_Minutes</code> - Sorts results to show closest buses first per line<br><br>
+  <strong>Business Value:</strong> Enables real-time passenger information systems. Example result: Line 21 to LUXEMBOURG has 3 buses arriving in 1-4 minutes (data age: <1 second = ultra-fresh). Critical for mobile apps showing "next bus in X minutes".</em></p>
+</div>
+
+---
+
+#### View 6: Traffic Blockage Detection (Alerting Logic)
+<div align="center">
+  <img src="screenshots/07-sql-superposition.png" alt="SQL Blockage Detection" width="700"/>
+  <p><em><strong>Advanced Analytics View: VW_Alerte_Blocage</strong><br>
+  <strong>Business Question:</strong> "Which buses are stuck in traffic or experiencing technical issues?"<br><br>
+  <strong>Technical Implementation:</strong><br>
+  • <code>WHERE distance_from_point < 10</code> - Identifies vehicles moving less than 10 meters (effectively stationary)<br>
+  • <code>COUNT(*) as Nb_Occurrences</code> - Counts how many times the same vehicle appears at the same position<br>
+  • <code>MIN(insertion_timestamp) as Depuis</code> - Tracks SINCE WHEN the vehicle has been stationary<br>
+  • <code>HAVING COUNT(*) > 0</code> - Filters to show only buses that appear multiple times in the same spot (potential blockage)<br><br>
+  <strong>Business Value:</strong> Proactive incident detection. Example: Line 1 at point 8082 appears stationary (Nb_Occurrences = 1, but tracked since 18:21:49). If this count increases over multiple workflow executions → ALERT: "Bus Line 1 potentially blocked at stop 8082 for 5+ minutes". Enables automatic dispatching of support or rerouting decisions.<br><br>
+  <strong>Real-World Application:</strong> This view powers automated Slack/email alerts to STIB operations center when buses are detected as immobile for >5 minutes, reducing passenger wait times and improving service quality.</em></p>
+</div>
+
+---
+
+### **Why This Architecture Matters**
+
+This project demonstrates the **complete data value chain**:
+
+**1. Speed (n8n Workflow)**
+- 30-second ingestion interval
+- Lightweight automation (no heavy ETL infrastructure needed)
+- Immediate data availability in SQL
+
+**2. Security (SQL Server Staging)**
+- Persistent storage (data survives n8n restarts)
+- Transaction safety (ACID compliance)
+- Historical data retention for trend analysis
+- Indexed tables for performance
+
+**3. Intelligence (T-SQL Views)**
+- Raw data → Business metrics in <50ms query time
+- Real-time waiting calculations (no manual computation)
+- Proactive alerting logic (blockage detection)
+- Reusable views for multiple dashboards
+
+**4. Business Impact**
+- **Passenger Experience:** Mobile apps show accurate "next bus in X min"
+- **Operations Efficiency:** Automatic alerts for stuck vehicles
+- **Cost Savings:** Identify patterns to optimize routes
+- **Data-Driven Decisions:** Historical analysis for service improvements
+
+**From 215 raw vehicle positions → 2 simple SQL views → Actionable insights in real-time.**
+
+**This is the power of combining low-code automation (n8n) with intelligent data engineering (SQL).**
+
 ---
 
 ## ✨ Key Features
